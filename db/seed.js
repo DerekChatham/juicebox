@@ -16,8 +16,10 @@ const {
   
       // have to make sure to drop in correct order
       await client.query(`
-        DROP TABLE IF EXISTS posts;
-        DROP TABLE IF EXISTS users;
+      DROP TABLE IF EXISTS post_tags;
+      DROP TABLE IF EXISTS tags;
+      DROP TABLE IF EXISTS posts;
+      DROP TABLE IF EXISTS users;
       `);
   
       console.log("Finished dropping tables!");
@@ -46,6 +48,14 @@ const {
           title varchar(255) NOT NULL,
           content TEXT NOT NULL,
           active BOOLEAN DEFAULT true
+        );
+        CREATE TABLE tags (
+          id SERIAL PRIMARY KEY,
+          name varchar(255) UNIQUE NOT NULL
+        );
+        CREATE TABLE post_tags (
+          "postId" INTEGER REFERENCES UNIQUE posts(id),
+          "tagId" INTEGER REFERENCES UNIQUE tags(id)
         );
       `);
   
@@ -114,6 +124,32 @@ const {
       throw error;
     }
   }
+
+  async function createTags(tagList) {
+    if (tagList.length === 0) { 
+      return; 
+    }
+  
+    // need something like: $1), ($2), ($3 
+    const insertValues = tagList.map(
+      (_, index) => `$${index + 1}`).join('), (');
+    // then we can use: (${ insertValues }) in our string template
+  
+    // need something like $1, $2, $3
+    const selectValues = tagList.map(
+      (_, index) => `$${index + 1}`).join(', ');
+    // then we can use (${ selectValues }) in our string template
+  
+    try {
+      // insert the tags, doing nothing on conflict
+      // returning nothing, we'll query after
+  
+      // select all tags where the name is in our taglist
+      // return the rows from the query
+    } catch (error) {
+      throw error;
+    }
+  }
   
   async function rebuildDB() {
     try {
@@ -123,6 +159,7 @@ const {
       await createTables();
       await createInitialUsers();
       await createInitialPosts();
+      await createTags();
     } catch (error) {
       console.log("Error during rebuildDB")
       throw error;
