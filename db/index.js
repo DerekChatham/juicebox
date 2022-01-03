@@ -167,5 +167,5 @@ module.exports = {
   createPost,
   updatePost,
   getAllPosts,
-  getPostsByUser
+  getPostsByUser,
 }
