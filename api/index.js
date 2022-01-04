@@ -57,5 +57,3 @@ apiRouter.use((req, res, next) => {
 });
 
 module.exports = apiRouter;
-
-
